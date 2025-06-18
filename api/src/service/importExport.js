@@ -9,7 +9,7 @@ const QRCode = require("qrcode");
 const {v4: uuidv4} = require("uuid");
 const {PassThrough} = require("stream");
 const archiver = require("archiver");
-const productService = require("../service/product");
+const productService = require("./voucher");
 const PUBLIC_DIR = path.join(__dirname, "..", "..", "public");
 
 exports.bulkImport = async ({zipFile, userId}) => {
@@ -55,7 +55,7 @@ exports.bulkImport = async ({zipFile, userId}) => {
     }
 
     // Parse Excel using ExcelJS
-    const sheetPath = path.join(extractTo, "products.xlsx");
+    const sheetPath = path.join(extractTo, "vouchers.xlsx");
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(sheetPath);
     const worksheet = workbook.worksheets[0];
@@ -246,7 +246,7 @@ exports.bulkExport = async ({userId}) => {
         {header: "Name", key: "name", width: 25},
         {header: "Description", key: "description", width: 40},
         {header: "Price", key: "price", width: 10},
-        {header: "Product QR", key: "product_qr", width: 20},
+        {header: "Voucher QR", key: "product_qr", width: 20},
         {header: "Serial", key: "serial", width: 20},
         {header: "Identity QR", key: "identity_qr", width: 20},
         {header: "Images", key: "images", width: 30},

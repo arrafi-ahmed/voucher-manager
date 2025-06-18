@@ -1,12 +1,12 @@
 <script setup>
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 import $axios from "@/plugins/axios.js";
-import {useRoute, useRouter} from "vue-router";
-import {useStore} from "vuex";
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 import PageTitle from "@/components/PageTitle.vue";
-import {loadStripe} from "@stripe/stripe-js";
-import {defaultCurrency, getClientPublicImageUrl} from "@/others/util.js";
-import {useTheme} from "vuetify";
+import { loadStripe } from "@stripe/stripe-js";
+import { defaultCurrency, getClientPublicImageUrl } from "@/others/util.js";
+import { useTheme } from "vuetify";
 
 definePage({
   name: "checkout",
@@ -58,17 +58,17 @@ const card = ref(null);
 const isCardMounted = ref(false);
 const cardElement = ref(null);
 const fetchedClientSecret = ref("");
-const fetchedProduct = ref({});
+const fetchedVoucher = reactive({});
 
 const pay = async () => {
-  const {error, paymentIntent} = await stripe.confirmPayment({
+  const { error, paymentIntent } = await stripe.confirmPayment({
     elements: elements.value,
     confirmParams: {
       // Only needed if you want to redirect
       return_url: `${import.meta.env.VITE_BASE_URL}${
         router.resolve({
           name: "checkout-confirmation",
-          params: {productId: route.params.productId},
+          params: { voucherId: route.params.voucherId },
         }).href
       }`,
     },
@@ -76,7 +76,7 @@ const pay = async () => {
   });
 
   if (error) {
-    store.commit("addSnackbar", {text: error.message, color: "error"});
+    store.commit("addSnackbar", { text: error.message, color: "error" });
   } else if (paymentIntent.status === "succeeded") {
     store.commit("addSnackbar", {
       text: "Payment successful!",
@@ -84,7 +84,7 @@ const pay = async () => {
     });
     router.push({
       name: "checkout-confirmation",
-      params: {productId: route.params.productId},
+      params: { voucherId: route.params.voucherId },
     });
   }
 };
@@ -92,11 +92,13 @@ const pay = async () => {
 onMounted(async () => {
   try {
     stripe = await loadStripe(publishableKey);
-    const result = await $axios.post("/api/stripe/createPaymentIntent", {
-      productId: route.params.productId,
+    const {
+      data: { payload },
+    } = await $axios.post("/api/stripe/createPaymentIntent", {
+      voucherId: route.params.voucherId,
     });
-    fetchedProduct.value = result.data.payload?.product;
-    fetchedClientSecret.value = result.data.payload?.clientSecret;
+    Object.assign(fetchedVoucher, payload?.voucher);
+    fetchedClientSecret.value = payload?.clientSecret;
 
     elements.value = stripe.elements({
       clientSecret: fetchedClientSecret.value,
@@ -122,22 +124,41 @@ onMounted(async () => {
   <v-container>
     <v-row>
       <v-col>
-        <page-title :border-b="true" :show-back="true" title="Checkout"/>
+        <page-title
+          :border-b="true"
+          :show-back="true"
+          title="Checkout"
+        />
       </v-col>
     </v-row>
 
-    <v-row align="center" justify="center">
-      <v-col cols="12" md="8" sm="10">
-        <v-card v-if="fetchedProduct.id" :max-width="600" class="mx-auto" tile>
-          <v-card-title>{{ fetchedProduct.name }}</v-card-title>
-          <v-card-subtitle>{{ fetchedProduct.description }}</v-card-subtitle>
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        cols="12"
+        md="8"
+        sm="10"
+      >
+        <v-card
+          v-if="fetchedVoucher.id"
+          :max-width="600"
+          class="mx-auto rounded-t-lg rounded-b-0"
+        >
+          <v-card-title>{{ fetchedVoucher.name }}</v-card-title>
+          <v-card-subtitle>{{ fetchedVoucher.description }}</v-card-subtitle>
           <v-card-text>
-            <h3>{{ defaultCurrency.symbol }} {{ fetchedProduct.price }}</h3>
+            <h3>{{ defaultCurrency.symbol }} {{ fetchedVoucher.price }}</h3>
           </v-card-text>
         </v-card>
-        <v-card :max-width="600" class="mx-auto" tile>
+        <v-card
+          :max-width="600"
+          class="mx-auto rounded-b-lg rounded-t-0"
+          tile
+        >
           <v-card-text>
-            <div ref="cardElement"></div>
+            <div ref="cardElement" />
           </v-card-text>
           <v-card-actions>
             <v-btn
@@ -146,7 +167,8 @@ onMounted(async () => {
               color="primary"
               variant="flat"
               @click="pay"
-            >Pay Now
+            >
+              Pay Now
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -156,13 +178,14 @@ onMounted(async () => {
     <v-row justify="center">
       <v-col
         class="text-center"
-        cols="2"
+        cols="auto"
       >
         <v-img
           v-if="isCardMounted"
           :src="getClientPublicImageUrl('stripe.svg')"
           alt="Powered by Stripe"
           contain
+          width="200"
         />
       </v-col>
     </v-row>

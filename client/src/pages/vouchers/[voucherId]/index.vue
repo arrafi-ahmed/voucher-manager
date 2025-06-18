@@ -10,7 +10,7 @@ definePage({
   name: "product-single-landing",
   meta: {
     layout: "default",
-    title: "Product",
+    title: "Voucher",
     requiresAuth: false,
   },
 });
@@ -59,21 +59,27 @@ const fetchData = async () => {
 
 onMounted(async () => {
   await fetchData();
-  document.title = `${product.value?.name || "Product View"} | ${appInfo.name}`;
+  document.title = `${product.value?.name || "Voucher View"} | ${appInfo.name}`;
   // currentSelectedImage.value = product.value.images[0];
 });
 </script>
 
 <template>
   <v-container class="fill-height">
-    <v-row align="center" justify="center">
-      <v-col cols="12" lg="8">
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        cols="12"
+        lg="8"
+      >
         <product-card
           v-if="product.id"
           :product="product"
-          :showBuy="true"
-        ></product-card>
-        <no-items v-else/>
+          :show-buy="true"
+        />
+        <no-items v-else />
       </v-col>
     </v-row>
   </v-container>

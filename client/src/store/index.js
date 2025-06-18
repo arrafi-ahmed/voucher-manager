@@ -1,11 +1,11 @@
 import {createStore} from "vuex";
 import * as user from "./modules/user";
-import * as product from "./modules/product";
+import * as voucher from "./modules/voucher.js";
 
 const store = createStore({
   modules: {
     user,
-    product,
+    voucher,
   },
   state: () => ({
     progress: null,

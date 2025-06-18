@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-// const { getEventByEventIdnClubId } = require("../service/team");
+// const { getEventByEventIdnClubId } = require("../requests/team");
 
 const auth = (req, res, next) => {
     const token = req.header("authorization");

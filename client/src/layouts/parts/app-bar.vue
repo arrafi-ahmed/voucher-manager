@@ -3,13 +3,12 @@ import Logo from "@/components/Logo.vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { computed, ref } from "vue";
-import { getClientPublicImageUrl, getToLink } from "@/others/util";
 import UserAvatar from "@/components/UserAvatar.vue";
 import { useDisplay } from "vuetify";
+import { getToLink } from "@/others/util.js";
 
 const store = useStore();
 const router = useRouter();
-const { xs } = useDisplay();
 
 const signedin = computed(() => store.getters["user/signedin"]);
 const currentUser = computed(() => store.getters["user/getCurrentUser"]);
@@ -18,9 +17,11 @@ const calcHome = computed(() => store.getters["user/calcHome"]);
 const isAdmin = computed(() => store.getters["user/isAdmin"]);
 const isCustomer = computed(() => store.getters["user/isCustomer"]);
 
-const menuItemsAdmin = [{ title: "Products", to: { name: "products" } }];
+const menuItemsAdmin = [{ title: "Vouchers", to: { name: "vouchers" } }];
 
-const menuItemsCustomer = [];
+const menuItemsCustomer = [
+  { title: "Purchases", to: { name: "customer-recent-purchases" } },
+];
 const isRequiresNoAuth = computed(() =>
   store.state.routeInfo.to.matched.some((record) => record.meta.requiresNoAuth),
 );
@@ -53,10 +54,17 @@ const getGreetings = computed(() => {
     color="header"
     flat
   >
+    <!--    <logo-->
+    <!--      :img-class="isRequiresNoAuth ? 'mx-auto' : 'mx-3'"-->
+    <!--      :img-src="getClientPublicImageUrl('logo.png')"-->
+    <!--      :title="false"-->
+    <!--      :width="190"-->
+    <!--      container-class="clickable"-->
+    <!--      @click="router.push(calcHome)"-->
+    <!--    />-->
     <logo
       :img-class="isRequiresNoAuth ? 'mx-auto' : 'mx-3'"
-      :img-src="getClientPublicImageUrl('logo.png')"
-      :title="false"
+      :title="true"
       :width="190"
       container-class="clickable"
       @click="router.push(calcHome)"

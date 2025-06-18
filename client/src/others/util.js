@@ -217,7 +217,7 @@ export const getCurrencySymbol = ({code, type}) => {
     usd: {icon: "mdi-currency-usd", symbol: "$", value: "usd"},
     gbp: {icon: "mdi-currency-gbp", symbol: "£", value: "gbp"},
     eur: {icon: "mdi-currency-eur", symbol: "€", value: "eur"},
-    thb: {icon: "mdi-currency-thb", symbol: "฿", value: "thb"},
+    zar: {icon: "mdi-alpha-r", symbol: "R", value: "zar"},
   };
   const currencyData = currencyMap[codeLower];
   if (!currencyData) {
@@ -229,7 +229,7 @@ export const getCurrencySymbol = ({code, type}) => {
   return currencyData[type];
 };
 
-export const defaultCurrency = getCurrencySymbol({code: "thb"});
+export const defaultCurrency = getCurrencySymbol({code: "zar"});
 
 export const getUserLocation = () => {
   return new Promise((resolve, reject) => {
