@@ -118,6 +118,45 @@ exports.webhook = async (req) => {
       } catch (error) {
         console.error(error);
       }
+
+    case "checkout.session.completed":
+      try {
+        const checkoutSession = data.object;
+        
+        // Check if promotion code was used
+        if (checkoutSession.total_details && checkoutSession.total_details.amount_discount > 0) {
+          // Promotion code was applied - find the voucher and mark as redeemed
+          const promotionCode = checkoutSession.promotion_code;
+          
+          if (promotionCode && promotionCode.code) {
+            // Find voucher by promotion code
+            const [voucher] = await sql`
+              SELECT id, stripe_promotion_id FROM vouchers 
+              WHERE code = ${promotionCode.code}
+            `;
+            
+            if (voucher && voucher.stripe_promotion_id === promotionCode.id) {
+              // Find the purchase for this voucher and mark as redeemed
+              await sql`
+                UPDATE purchases 
+                SET is_redeemed = true, updated_at = NOW()
+                WHERE voucher_id = ${voucher.id} 
+                AND payment_status = 1 
+                AND is_redeemed = false
+                LIMIT 1
+              `;
+              
+              console.log(`Voucher ${promotionCode.code} marked as redeemed`);
+            }
+          }
+        }
+        
+        responseMsg = "Checkout completed!";
+        break;
+      } catch (error) {
+        console.error('Error handling checkout.session.completed:', error);
+      }
+
     // // subscription created successfully
     // case "checkout.session.completed":
     //   const checkoutSessionCompleted = data.object;

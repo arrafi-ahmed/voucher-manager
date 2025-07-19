@@ -114,32 +114,16 @@ const removeVoucher = async ({ voucherId }) => {
 
 <template>
   <v-container>
-    <v-row
-      align="center"
-      justify="space-between"
-    >
+    <v-row align="center" justify="space-between">
       <v-col>
-        <page-title
-          :border-b="true"
-          :show-back="true"
-          title="Vouchers"
-        >
+        <page-title :border-b="true" :show-back="true" title="Vouchers">
           <v-row align="center">
             <v-menu>
               <template #activator="{ props }">
-                <v-btn
-                  icon="mdi-dots-vertical"
-                  v-bind="props"
-                  variant="text"
-                />
+                <v-btn icon="mdi-dots-vertical" v-bind="props" variant="text" />
               </template>
               <v-list density="compact">
-                <v-list-item
-                  density="compact"
-                  prepend-icon="mdi-plus"
-                  title="Add Voucher"
-                  @click="dialog = !dialog"
-                />
+                <v-list-item density="compact" prepend-icon="mdi-plus" title="Add Voucher" @click="dialog = !dialog" />
               </v-list>
             </v-menu>
           </v-row>
@@ -165,16 +149,8 @@ const removeVoucher = async ({ voucherId }) => {
     <v-row>
       <v-col>
         <v-sheet class="px-0 px-md-3">
-          <v-data-table-server
-            v-model:items-per-page="itemsPerPage"
-            :headers="headers"
-            :items="vouchers"
-            :items-length="totalCount"
-            :loading="loading"
-            :search="search"
-            disable-sort
-            @update:options="loadItems"
-          >
+          <v-data-table-server v-model:items-per-page="itemsPerPage" :headers="headers" :items="vouchers"
+            :items-length="totalCount" :loading="loading" :search="search" disable-sort @update:options="loadItems">
             <template #item.price="{ item }">
               {{ defaultCurrency.symbol }}
               {{ parseFloat(item.price).toFixed(2) }}
@@ -197,37 +173,21 @@ const removeVoucher = async ({ voucherId }) => {
             <template #item.actions="{ item }">
               <v-menu>
                 <template #activator="{ props }">
-                  <v-btn
-                    icon="mdi-dots-vertical"
-                    v-bind="props"
-                    variant="text"
-                  />
+                  <v-btn icon="mdi-dots-vertical" v-bind="props" variant="text" />
                 </template>
 
                 <v-list density="compact">
-                  <v-list-item
-                    link
-                    prepend-icon="mdi-pencil"
-                    title="Edit"
-                    @click="
-                      router.push({
-                        name: 'voucher-edit',
-                        params: { voucherId: item.id },
-                      })
-                    "
-                  />
+                  <v-list-item link prepend-icon="mdi-pencil" title="Edit" @click="
+                    router.push({
+                      name: 'voucher-edit',
+                      params: { voucherId: item.id },
+                    })
+                    " />
                   <v-divider class="my-1" />
-                  <confirmation-dialog
-                    @confirm="removeVoucher({ voucherId: item.id })"
-                  >
+                  <confirmation-dialog @confirm="removeVoucher({ voucherId: item.id })">
                     <template #activator="{ onClick }">
-                      <v-list-item
-                        class="text-error"
-                        link
-                        prepend-icon="mdi-delete"
-                        title="Delete"
-                        @click.stop="onClick"
-                      />
+                      <v-list-item class="text-error" link prepend-icon="mdi-delete" title="Delete"
+                        @click.stop="onClick" />
                     </template>
                   </confirmation-dialog>
                 </v-list>
@@ -239,143 +199,45 @@ const removeVoucher = async ({ voucherId }) => {
     </v-row>
   </v-container>
 
-  <v-dialog
-    v-model="dialog"
-    :max-width="600"
-    persistent
-  >
+  <v-dialog v-model="dialog" :max-width="600" persistent>
     <v-card>
-      <v-card-title class="d-flex justify-space-between">
+      <v-card-title class="d-flex justify-space-between align-center">
         <h2>Add Voucher</h2>
-        <v-btn
-          icon="mdi-close"
-          size="small"
-          variant="text"
-          @click="dialog = !dialog"
-        />
+        <v-switch v-model="newVoucher.status" color="primary" density="comfortable" hide-details="auto" label="Active"
+            rounded="lg" />
       </v-card-title>
       <v-card-text>
-        <v-form
-          ref="addForm"
-          v-model="isFormValid"
-          fast-fail
-          @submit.prevent="handleSubmitVoucherAdd"
-        >
-          <v-text-field
-            v-model="newVoucher.name"
-            :rules="[(v) => !!v || 'Name is required!']"
-            class="mt-2"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Name"
-            rounded="lg"
-            variant="outlined"
-          />
-          <v-textarea
-            v-model="newVoucher.description"
-            :rules="[(v) => !!v || 'Description is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Description"
-            rounded="lg"
-            variant="outlined"
-          />
-          <v-text-field
-            v-model="newVoucher.code"
-            :rules="[(v) => !!v || 'Code is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Code"
-            rounded="lg"
-            type="text"
-            variant="outlined"
-          />
-          <v-select
-            v-model="newVoucher.variant"
-            :rules="[(v) => v != null || 'Voucher type is required!']"
-            :items="voucherTypes"
-            item-title="title"
-            item-value="value"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Voucher type"
-            rounded="lg"
-            variant="outlined"
-          />
-          <v-text-field
-            v-model="newVoucher.amount"
-            :rules="[(v) => !!v || 'Amount is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Amount"
-            rounded="lg"
-            type="number"
-            variant="outlined"
-            :prepend-inner-icon="defaultCurrency?.icon"
-          />
-          <date-picker
-            v-model="newVoucher.expiresAt"
-            :rules="[(v) => !!v || 'Expiry Date is required!']"
-            clearable
-            custom-class="mt-2 mt-md-4"
-            density="comfortable"
-            hide-details="auto"
-            label="Expiry Date"
-            rounded="lg"
-            variant="outlined"
-          />
-          <v-text-field
-            v-model="newVoucher.price"
-            :rules="[(v) => !!v || 'Price is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Price"
-            rounded="lg"
-            type="number"
-            variant="outlined"
-            :prepend-inner-icon="defaultCurrency?.icon"
-          />
-          <v-text-field
-            v-model="newVoucher.availableStock"
-            :rules="[(v) => !!v || 'Stock is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Stock"
-            rounded="lg"
-            type="number"
-            variant="outlined"
-          />
+        <v-form ref="addForm" v-model="isFormValid" fast-fail @submit.prevent="handleSubmitVoucherAdd">
+          <v-text-field v-model="newVoucher.name" :rules="[(v) => !!v || 'Name is required!']" class="mt-2" clearable
+            density="comfortable" hide-details="auto" label="Name" rounded="lg" variant="outlined" />
+
+          <v-text-field v-model="newVoucher.code" :rules="[(v) => !!v || 'Code is required!']" class="mt-2 mt-md-4"
+            clearable density="comfortable" hide-details="auto" label="Code" rounded="lg" type="text"
+            variant="outlined" />
+          <v-select v-model="newVoucher.variant" :rules="[(v) => v != null || 'Voucher type is required!']"
+            :items="voucherTypes" item-title="title" item-value="value" class="mt-2 mt-md-4" clearable
+            density="comfortable" hide-details="auto" label="Voucher type" rounded="lg" variant="outlined" />
+          <v-text-field v-model="newVoucher.amount" :rules="[(v) => !!v || 'Amount is required!']" class="mt-2 mt-md-4"
+            clearable density="comfortable" hide-details="auto" label="Amount" rounded="lg" type="number"
+            variant="outlined" :prepend-inner-icon="defaultCurrency?.icon" />
+          <v-text-field v-model="newVoucher.currency" :rules="[(v) => !!v || 'Currency is required!']"
+            class="mt-2 mt-md-4" clearable density="comfortable" hide-details="auto" label="Currency (e.g., ZAR, USD)"
+            rounded="lg" type="text" variant="outlined" placeholder="ZAR" />
+          <date-picker v-model="newVoucher.expiresAt" :rules="[(v) => !!v || 'Expiry Date is required!']" clearable
+            custom-class="mt-2 mt-md-4" density="comfortable" hide-details="auto" label="Expiry Date" rounded="lg"
+            variant="outlined" />
+          <v-text-field v-model="newVoucher.price" :rules="[(v) => !!v || 'Price is required!']" class="mt-2 mt-md-4"
+            clearable density="comfortable" hide-details="auto" label="Price" rounded="lg" type="number"
+            variant="outlined" :prepend-inner-icon="defaultCurrency?.icon" />
+          <v-text-field v-model="newVoucher.availableStock" :rules="[(v) => !!v || 'Stock is required!']"
+            class="mt-2 mt-md-4" clearable density="comfortable" hide-details="auto" label="Stock" rounded="lg"
+            type="number" variant="outlined" />
           <v-card-actions class="mt-2 mt-md-4">
             <v-spacer />
-            <v-btn
-              color="secondary"
-              rounded="lg"
-              size="large"
-              variant="flat"
-              @click="dialog = !dialog"
-            >
+            <v-btn color="secondary" rounded="lg" size="large" variant="flat" @click="dialog = !dialog">
               Cancel
             </v-btn>
-            <v-btn
-              color="primary"
-              rounded="lg"
-              size="large"
-              type="submit"
-              variant="flat"
-            >
+            <v-btn color="primary" rounded="lg" size="large" type="submit" variant="flat">
               Save
             </v-btn>
           </v-card-actions>

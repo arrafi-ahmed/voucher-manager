@@ -147,7 +147,7 @@ onMounted(async () => {
           class="mx-auto rounded-t-lg rounded-b-0"
         >
           <v-card-title>{{ fetchedVoucher.name }}</v-card-title>
-          <v-card-subtitle>{{ fetchedVoucher.description }}</v-card-subtitle>
+          <v-card-subtitle>{{ fetchedVoucher.status ? 'Active' : 'Inactive' }}</v-card-subtitle>
           <v-card-text>
             <h3>{{ defaultCurrency.symbol }} {{ fetchedVoucher.price }}</h3>
           </v-card-text>

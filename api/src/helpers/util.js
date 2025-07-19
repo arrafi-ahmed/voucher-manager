@@ -8,6 +8,16 @@ const appInfo = { name: "Starter", version: 1.0 };
 
 const excludedSecurityURLs = ["/product/someurl"];
 
+// Generate short ID similar to Stripe format (8 characters, alphanumeric)
+const generateShortId = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 const getCurrencySymbol = ({ code, type }) => {
   const codeLower = code.toString().toLowerCase();
 
@@ -237,4 +247,5 @@ module.exports = {
   ifSudo,
   getClientIP,
   reverseGeocode,
+  generateShortId,
 };

@@ -94,7 +94,7 @@ onMounted(async () => {
                       {{ voucher.name }}
                     </v-card-title>
                     <v-card-subtitle>
-                      {{ voucher.description }}
+                      {{ voucher.status ? 'Active' : 'Inactive' }}
                     </v-card-subtitle>
 
                     <v-card-text>

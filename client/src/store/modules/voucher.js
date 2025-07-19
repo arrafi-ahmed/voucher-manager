@@ -42,6 +42,12 @@ export const actions = {
     return response.data?.payload;
   },
 
+  async updateStatusAndName({ commit }, request) {
+    const response = await $axios.put("/api/voucher/updateStatusAndName", request);
+    commit("editVoucher", response.data?.payload);
+    return response.data?.payload;
+  },
+
   async setVoucher({ commit }, request) {
     const response = await $axios.get("/api/voucher/getVoucher", {
       params: {

@@ -11,31 +11,34 @@ CREATE TABLE users
 
 CREATE TABLE vouchers
 (
-    id              SERIAL PRIMARY KEY,
-    name            VARCHAR(255)       NOT NULL,
-    description     TEXT,
-    code            VARCHAR(32) UNIQUE NOT NULL,
-    variant         INTEGER   DEFAULT 0 CHECK (variant IN (0, 1, 2)), -- 0=amount, 1=percentage
-    amount          INTEGER            NOT NULL,                      -- e.g. 100 ZAR or 10%
-    expires_at      TIMESTAMP,
-    price           DECIMAL(10, 2)     NOT NULL,
-    available_stock INT       default 1,
-    created_at      TIMESTAMP DEFAULT NOW(),
-    updated_at      TIMESTAMP DEFAULT NOW(),
-    user_id         INT REFERENCES users (id) ON DELETE CASCADE
+    id                    SERIAL PRIMARY KEY,
+    name                  VARCHAR(255)       NOT NULL,
+    code                  VARCHAR(32) UNIQUE NOT NULL,
+    variant               INTEGER   DEFAULT 0 CHECK (variant IN (0, 1, 2)), -- 0=amount, 1=percentage maps to stripe api - percent_off or amount_off
+    amount                INTEGER            NOT NULL,                      -- e.g. 100 ZAR or 10%
+    expires_at            TIMESTAMP,                                        -- maps to stripe api - redeem_by
+    price                 DECIMAL(10, 2)     NOT NULL,
+    available_stock       INT       default 1,
+    created_at            TIMESTAMP DEFAULT NOW(),
+    updated_at            TIMESTAMP DEFAULT NOW(),
+    user_id               INT REFERENCES users (id) ON DELETE CASCADE,
+    currency              VARCHAR(3)         NOT NULL DEFAULT 'ZAR',        
+    status                BOOLEAN            DEFAULT TRUE,                  
+    stripe_coupon_id      VARCHAR(255),                                    
+    stripe_promotion_id   VARCHAR(255)                                   
 );
 
 CREATE TABLE purchases
 (
-    id                    SERIAL PRIMARY KEY,
-    purchased_price       DECIMAL(10, 2) NOT NULL,
+    id                       SERIAL PRIMARY KEY,
+    purchased_price          DECIMAL(10, 2) NOT NULL,
     is_redeemed              BOOLEAN   DEFAULT FALSE,
-    payment_status        SMALLINT CHECK (payment_status IN (0, 1, 2)), -- 0=pending, 1=paid, 2=failed
+    payment_status           SMALLINT CHECK (payment_status IN (0, 1, 2)), -- 0=pending, 1=paid, 2=failed
     stripe_payment_intent_id VARCHAR(255) unique,
-    created_at            TIMESTAMP DEFAULT NOW(),
-    updated_at            TIMESTAMP DEFAULT NOW(),
-    user_id               INT REFERENCES users (id) ON DELETE CASCADE,
-    voucher_id            INT REFERENCES vouchers (id) ON DELETE CASCADE
+    created_at               TIMESTAMP DEFAULT NOW(),
+    updated_at               TIMESTAMP DEFAULT NOW(),
+    user_id                  INT REFERENCES users (id) ON DELETE CASCADE,
+    voucher_id               INT REFERENCES vouchers (id) ON DELETE CASCADE
 );
 
 CREATE TABLE password_reset

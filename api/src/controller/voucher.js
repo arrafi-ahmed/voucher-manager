@@ -19,6 +19,73 @@ router.post("/save", auth, (req, res, next) => {
     .catch((err) => next(err));
 });
 
+router.put("/updateStatusAndName", auth, (req, res, next) => {
+  voucherService
+    .updateStatusAndName(req.body)
+    .then((result) => {
+      if (result) {
+        res
+          .status(200)
+          .json(new ApiResponse({ msg: "Voucher updated!", payload: result }));
+      }
+    })
+    .catch((err) => next(err));
+});
+
+// Public endpoint for voucher verification (no auth required)
+router.post("/verify", (req, res, next) => {
+  const { email, voucherCode } = req.body;
+  
+  if (!email || !voucherCode) {
+    return res.status(400).json(new ApiResponse({ 
+      msg: "Email and voucher code are required", 
+      success: false 
+    }));
+  }
+
+  voucherService
+    .verifyVoucherPurchase({ email, voucherCode })
+    .then((result) => {
+      res.status(200).json(new ApiResponse({ 
+        msg: "Voucher verified successfully!", 
+        payload: result 
+      }));
+    })
+    .catch((err) => {
+      res.status(400).json(new ApiResponse({ 
+        msg: err.message, 
+        success: false 
+      }));
+    });
+});
+
+// Public endpoint to mark voucher as redeemed
+router.post("/redeem", (req, res, next) => {
+  const { email, voucherCode } = req.body;
+  
+  if (!email || !voucherCode) {
+    return res.status(400).json(new ApiResponse({ 
+      msg: "Email and voucher code are required", 
+      success: false 
+    }));
+  }
+
+  voucherService
+    .markVoucherAsRedeemed({ email, voucherCode })
+    .then((result) => {
+      res.status(200).json(new ApiResponse({ 
+        msg: "Voucher redeemed successfully!", 
+        payload: result 
+      }));
+    })
+    .catch((err) => {
+      res.status(400).json(new ApiResponse({ 
+        msg: err.message, 
+        success: false 
+      }));
+    });
+});
+
 router.get("/getVouchersByUserId", auth, (req, res, next) => {
   voucherService
     .getVouchersByUserId({
@@ -40,6 +107,7 @@ router.get("/getActiveVouchers", (req, res, next) => {
     .catch((err) => next(err));
 });
 
+// for admins
 router.get("/getPurchasesWUsersForOwnVouchers", auth, (req, res, next) => {
   voucherService
     .getPurchasesWUsersForOwnVouchers({
@@ -51,6 +119,7 @@ router.get("/getPurchasesWUsersForOwnVouchers", auth, (req, res, next) => {
     .catch((err) => next(err));
 });
 
+// for customers
 router.get("/getPurchasesWVouchers", auth, (req, res, next) => {
   voucherService
     .getPurchasesWVouchers({

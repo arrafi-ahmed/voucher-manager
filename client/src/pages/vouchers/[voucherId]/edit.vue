@@ -2,10 +2,7 @@
 import PageTitle from "@/components/PageTitle.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import Voucher from "@/models/Voucher.js";
-import { defaultCurrency } from "@/others/util.js";
-import DatePicker from "@/components/DatePicker.vue";
-import { voucherTypes } from "@/constants/vouchers.js";
+import $axios from "@/plugins/axios.js";
 
 definePage({
   name: "voucher-edit",
@@ -20,7 +17,11 @@ const route = useRoute();
 const router = useRouter();
 
 const voucher = computed(() => store.state.voucher.voucher);
-const newVoucher = reactive({ ...new Voucher() });
+const editVoucher = reactive({
+  id: null,
+  name: '',
+  status: true
+});
 
 const form = ref(null);
 const isFormValid = ref(true);
@@ -29,9 +30,13 @@ const handleSubmitVoucherEdit = async () => {
   await form.value.validate();
   if (!isFormValid.value) return;
 
-  store.dispatch("voucher/save", {newVoucher}).then((res) => {
+  try {
+    await $axios.put("/api/voucher/updateStatusAndName", editVoucher);
+    store.commit("addSnackbar", { text: "Voucher updated successfully!", color: "success" });
     router.push({ name: "vouchers" });
-  });
+  } catch (error) {
+    store.commit("addSnackbar", { text: "Failed to update voucher", color: "error" });
+  }
 };
 
 const fetchData = async () => {
@@ -39,13 +44,15 @@ const fetchData = async () => {
     voucherId: route.params.voucherId,
   });
 };
+
 onMounted(async () => {
   await fetchData();
-  Object.assign(newVoucher, {
-    ...voucher.value,
+  Object.assign(editVoucher, {
+    id: voucher.value.id,
+    name: voucher.value.name,
+    status: voucher.value.status
   });
-})
-;
+});
 </script>
 
 <template>
@@ -65,123 +72,135 @@ onMounted(async () => {
 
     <v-row>
       <v-col>
-        <v-form
-          ref="form"
-          v-model="isFormValid"
-          fast-fail
-          @submit.prevent="handleSubmitVoucherEdit"
-        >
-          <v-text-field
-            v-model="newVoucher.name"
-            :rules="[(v) => !!v || 'Name is required!']"
-            class="mt-2"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Name"
-            rounded="lg"
-            variant="outlined"
-          />
-          <v-textarea
-            v-model="newVoucher.description"
-            :rules="[(v) => !!v || 'Description is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Description"
-            rounded="lg"
-            variant="outlined"
-          />
-          <v-text-field
-            v-model="newVoucher.code"
-            :rules="[(v) => !!v || 'Code is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Code"
-            rounded="lg"
-            type="text"
-            variant="outlined"
-          />
-          <v-select
-            v-model="newVoucher.variant"
-            :rules="[(v) => v != null || 'Voucher type is required!']"
-            :items="voucherTypes"
-            item-title="title"
-            item-value="value"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Voucher type"
-            rounded="lg"
-            variant="outlined"
-          />
-          <v-text-field
-            v-model="newVoucher.amount"
-            :rules="[(v) => !!v || 'Amount is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Amount"
-            rounded="lg"
-            type="number"
-            variant="outlined"
-            :prepend-inner-icon="defaultCurrency?.icon"
-          />
-          <date-picker
-            v-model="newVoucher.expiresAt"
-            :rules="[(v) => !!v || 'Expiry Date is required!']"
-            clearable
-            custom-class="mt-2 mt-md-4"
-            density="comfortable"
-            hide-details="auto"
-            label="Expiry Date"
-            rounded="lg"
-            variant="outlined"
-          />
-          <v-text-field
-            v-model="newVoucher.price"
-            :rules="[(v) => !!v || 'Price is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Price"
-            rounded="lg"
-            type="number"
-            variant="outlined"
-            :prepend-inner-icon="defaultCurrency?.icon"
-          />
-          <v-text-field
-            v-model="newVoucher.availableStock"
-            :rules="[(v) => !!v || 'Stock is required!']"
-            class="mt-2 mt-md-4"
-            clearable
-            density="comfortable"
-            hide-details="auto"
-            label="Stock"
-            rounded="lg"
-            type="number"
-            variant="outlined"
-          />
-          <v-card-actions class="mt-2 mt-md-4">
-            <v-spacer />
-
-            <v-btn
-              color="primary"
-              rounded="lg"
-              size="large"
-              type="submit"
-              variant="flat"
+        <v-card>
+          <v-card-title>Edit Voucher</v-card-title>
+          <v-card-text>
+            <p class="text-body-2 text-medium-emphasis mb-4">
+              Only name and status can be edited. Other fields are read-only for existing vouchers.
+            </p>
+            
+            <v-form
+              ref="form"
+              v-model="isFormValid"
+              fast-fail
+              @submit.prevent="handleSubmitVoucherEdit"
             >
-              Save
-            </v-btn>
-          </v-card-actions>
-        </v-form>
+              <v-text-field
+                v-model="editVoucher.name"
+                :rules="[(v) => !!v || 'Name is required!']"
+                class="mt-2"
+                clearable
+                density="comfortable"
+                hide-details="auto"
+                label="Name"
+                rounded="lg"
+                variant="outlined"
+              />
+              
+              <v-switch
+                v-model="editVoucher.status"
+                class="mt-2 mt-md-4"
+                color="primary"
+                density="comfortable"
+                hide-details="auto"
+                label="Active"
+                rounded="lg"
+              />
+
+              <!-- Read-only fields for display -->
+              <v-divider class="my-4" />
+              <h3 class="text-h6 mb-3">Voucher Details (Read-only)</h3>
+              
+              <v-text-field
+                :model-value="voucher.code"
+                class="mt-2"
+                density="comfortable"
+                hide-details="auto"
+                label="Code"
+                readonly
+                rounded="lg"
+                variant="outlined"
+              />
+              
+              <v-text-field
+                :model-value="voucher.variant === 1 ? 'Percentage' : 'Amount'"
+                class="mt-2 mt-md-4"
+                density="comfortable"
+                hide-details="auto"
+                label="Type"
+                readonly
+                rounded="lg"
+                variant="outlined"
+              />
+              
+              <v-text-field
+                :model-value="voucher.amount"
+                class="mt-2 mt-md-4"
+                density="comfortable"
+                hide-details="auto"
+                label="Amount"
+                readonly
+                rounded="lg"
+                variant="outlined"
+              />
+              
+              <v-text-field
+                :model-value="voucher.currency"
+                class="mt-2 mt-md-4"
+                density="comfortable"
+                hide-details="auto"
+                label="Currency"
+                readonly
+                rounded="lg"
+                variant="outlined"
+              />
+              
+              <v-text-field
+                :model-value="voucher.price"
+                class="mt-2 mt-md-4"
+                density="comfortable"
+                hide-details="auto"
+                label="Price"
+                readonly
+                rounded="lg"
+                variant="outlined"
+              />
+              
+              <v-text-field
+                :model-value="voucher.availableStock"
+                class="mt-2 mt-md-4"
+                density="comfortable"
+                hide-details="auto"
+                label="Available Stock"
+                readonly
+                rounded="lg"
+                variant="outlined"
+              />
+              
+              <v-card-actions class="mt-4">
+                <v-spacer />
+                <v-btn
+                  color="secondary"
+                  rounded="lg"
+                  size="large"
+                  variant="flat"
+                  @click="router.push({ name: 'vouchers' })"
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  rounded="lg"
+                  size="large"
+                  type="submit"
+                  variant="flat"
+                >
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-form>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
