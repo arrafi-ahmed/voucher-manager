@@ -94,7 +94,7 @@ onMounted(async () => {
     stripe = await loadStripe(publishableKey);
     const {
       data: { payload },
-    } = await $axios.post("/createPaymentIntent", {
+    } = await $axios.post("/stripe/createPaymentIntent", {
       voucherId: route.params.voucherId,
     });
     Object.assign(fetchedVoucher, payload?.voucher);
