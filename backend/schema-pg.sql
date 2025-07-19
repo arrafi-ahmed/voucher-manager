@@ -14,9 +14,9 @@ CREATE TABLE vouchers
     id                    SERIAL PRIMARY KEY,
     name                  VARCHAR(255)       NOT NULL,
     code                  VARCHAR(32) UNIQUE NOT NULL,
-    variant               INTEGER   DEFAULT 0 CHECK (variant IN (0, 1, 2)), -- 0=amount, 1=percentage maps to stripe api - percent_off or amount_off
+    variant               INTEGER   DEFAULT 0 CHECK (variant IN (0, 1, 2)), -- 0=amount, 1=percentage maps to stripe backend - percent_off or amount_off
     amount                INTEGER            NOT NULL,                      -- e.g. 100 ZAR or 10%
-    expires_at            TIMESTAMP,                                        -- maps to stripe api - redeem_by
+    expires_at            TIMESTAMP,                                        -- maps to stripe backend - redeem_by
     price                 DECIMAL(10, 2)     NOT NULL,
     available_stock       INT       default 1,
     created_at            TIMESTAMP DEFAULT NOW(),

@@ -37,19 +37,19 @@ export const mutations = {
 
 export const actions = {
   async save({ commit }, request) {
-    const response = await $axios.post("/api/voucher/save", request);
+    const response = await $axios.post("/voucher/save", request);
     commit("addVoucher", response.data?.payload);
     return response.data?.payload;
   },
 
   async updateStatusAndName({ commit }, request) {
-    const response = await $axios.put("/api/voucher/updateStatusAndName", request);
+    const response = await $axios.put("/voucher/updateStatusAndName", request);
     commit("editVoucher", response.data?.payload);
     return response.data?.payload;
   },
 
   async setVoucher({ commit }, request) {
-    const response = await $axios.get("/api/voucher/getVoucher", {
+    const response = await $axios.get("/voucher/getVoucher", {
       params: {
         voucherId: request.voucherId,
       },
@@ -59,7 +59,7 @@ export const actions = {
   },
 
   async removeVoucher({ commit }, request) {
-    const response = await $axios.get("/api/voucher/removeVoucher", {
+    const response = await $axios.get("/voucher/removeVoucher", {
       params: {
         voucherId: request.voucherId,
       },
@@ -69,7 +69,7 @@ export const actions = {
   },
 
   async setVouchersByUserId({ commit }, request) {
-    const response = await $axios.get("/api/voucher/getVouchersByUserId", {
+    const response = await $axios.get("/voucher/getVouchersByUserId", {
       params: {
         offset: request.offset,
         limit: request.limit,

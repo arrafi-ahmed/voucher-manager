@@ -22,7 +22,7 @@ const itemsPerPage = ref(10);
 const fetchData = async () => {
   const {
     data: { payload },
-  } = await $axios.get("/api/voucher/getActiveVouchers");
+  } = await $axios.get("/voucher/getActiveVouchers");
   vouchers.value = payload;
 };
 onMounted(async () => {

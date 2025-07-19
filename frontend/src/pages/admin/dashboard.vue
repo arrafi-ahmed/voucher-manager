@@ -1,22 +1,28 @@
 <script setup>
-import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import PageTitle from "@/components/PageTitle.vue";
+import DashboardCard from "@/components/DashboardCard.vue";
+import { useDisplay } from "vuetify/framework";
 import { defaultCurrency, formatDateTime } from "@/others/util.js";
 
-const store = useStore();
-const router = useRouter();
-
 definePage({
-  name: "customer-recent-purchases",
+  name: "admin-dashboard",
   meta: {
-    requiresAuth: true,
     layout: "default",
+    title: "Dashboard",
   },
 });
+const store = useStore();
+const router = useRouter();
+const { smAndUp } = useDisplay();
+
+router.push(store.getters["user/calcHome"]);
+
+const stat = reactive({});
 const purchases = ref([]);
 
-const itemsPerPage = ref(20);
+const itemsPerPage = ref(10);
 const totalCount = ref(0);
 const loading = ref(false);
 const search = ref("");
@@ -28,14 +34,19 @@ const headers = ref([
     key: "voucherName",
   },
   {
-    title: "Amount",
+    title: "User",
     align: "start",
-    key: "purchasedPrice",
+    key: "userName",
   },
   {
     title: "Redeemed?",
     align: "start",
     key: "isRedeemed",
+  },
+  {
+    title: "Amount",
+    align: "start",
+    key: "purchasedPrice",
   },
   {
     title: "Purchased At",
@@ -48,7 +59,7 @@ const loadItems = ({ page, itemsPerPage }) => {
   loading.value = true;
 
   return $axios
-    .get("/api/voucher/getPurchasesWVouchers", {
+    .get("/voucher/getPurchasesWUsersForOwnVouchers", {
       page,
       itemsPerPage,
       fetchTotalCount: !purchases.value?.items,
@@ -67,6 +78,17 @@ const loadItems = ({ page, itemsPerPage }) => {
       loading.value = false;
     });
 };
+
+const fetchData = async () => {
+  const {
+    data: { payload },
+  } = await $axios.get("/stat/admin");
+  Object.assign(stat, payload);
+};
+
+onMounted(async () => {
+  await fetchData();
+});
 </script>
 
 <template>
@@ -75,16 +97,52 @@ const loadItems = ({ page, itemsPerPage }) => {
       <v-col>
         <page-title
           border-b
-          title="Recent Purchases"
+          title="Welcome to Dashboard"
+        />
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <dashboard-card
+          :value="stat.activeVouchers"
+          :icon-size="40"
+          icon="mdi-cube-outline"
+          title="Active Vouchers"
+        />
+      </v-col>
+      <v-col>
+        <dashboard-card
+          :value="stat.totalSold"
+          :icon-size="40"
+          icon="mdi-tag"
+          title="Total Sold"
+        />
+      </v-col>
+      <v-col>
+        <dashboard-card
+          :value="stat.totalRedeemed"
+          :icon-size="40"
+          icon="mdi-select-all"
+          title="Total Redeemed"
+        />
+      </v-col>
+      <v-col>
+        <dashboard-card
+          :value="stat.totalRevenue"
+          :icon-size="40"
+          icon="mdi-select-all"
+          title="Total Revenue"
         />
       </v-col>
     </v-row>
 
     <v-row class="mt-4">
       <v-col>
+        <h3>Recent Purchases</h3>
         <v-data-table-server
           v-model:items-per-page="itemsPerPage"
-          class="rounded"
+          class="rounded mt-2 mt-md-4"
           :headers="headers"
           :items="purchases"
           :items-length="totalCount"
@@ -121,3 +179,5 @@ const loadItems = ({ page, itemsPerPage }) => {
     </v-row>
   </v-container>
 </template>
+
+<style scoped></style>

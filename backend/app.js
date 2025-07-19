@@ -17,7 +17,7 @@ const port = process.env.PORT || 3000;
 
 // Uncomment if Stripe webhook is needed
 app.post(
-  "/api/stripe/webhook",
+  "/stripe/webhook",
   express.raw({ type: "application/json" }),
   require("./src/controller/stripe").webhook,
 );
@@ -29,12 +29,12 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
 // Routes
-app.use("/api/user", require("./src/controller/user"));
-app.use("/api/voucher", require("./src/controller/voucher"));
-app.use("/api/stat", require("./src/controller/stat"));
-app.use("/api/stripe", require("./src/controller/stripe").router);
+app.use("/user", require("./src/controller/user"));
+app.use("/voucher", require("./src/controller/voucher"));
+app.use("/stat", require("./src/controller/stat"));
+app.use("/stripe", require("./src/controller/stripe").router);
 
-app.get("/api/info", (req, res) => {
+app.get("/info", (req, res) => {
   res.status(200).json(appInfo);
 });
 

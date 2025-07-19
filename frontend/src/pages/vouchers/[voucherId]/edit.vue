@@ -31,7 +31,7 @@ const handleSubmitVoucherEdit = async () => {
   if (!isFormValid.value) return;
 
   try {
-    await $axios.put("/api/voucher/updateStatusAndName", editVoucher);
+    await $axios.put("/voucher/updateStatusAndName", editVoucher);
     store.commit("addSnackbar", { text: "Voucher updated successfully!", color: "success" });
     router.push({ name: "vouchers" });
   } catch (error) {
@@ -78,7 +78,7 @@ onMounted(async () => {
             <p class="text-body-2 text-medium-emphasis mb-4">
               Only name and status can be edited. Other fields are read-only for existing vouchers.
             </p>
-            
+
             <v-form
               ref="form"
               v-model="isFormValid"
@@ -96,7 +96,7 @@ onMounted(async () => {
                 rounded="lg"
                 variant="outlined"
               />
-              
+
               <v-switch
                 v-model="editVoucher.status"
                 class="mt-2 mt-md-4"
@@ -110,7 +110,7 @@ onMounted(async () => {
               <!-- Read-only fields for display -->
               <v-divider class="my-4" />
               <h3 class="text-h6 mb-3">Voucher Details (Read-only)</h3>
-              
+
               <v-text-field
                 :model-value="voucher.code"
                 class="mt-2"
@@ -121,7 +121,7 @@ onMounted(async () => {
                 rounded="lg"
                 variant="outlined"
               />
-              
+
               <v-text-field
                 :model-value="voucher.variant === 1 ? 'Percentage' : 'Amount'"
                 class="mt-2 mt-md-4"
@@ -132,7 +132,7 @@ onMounted(async () => {
                 rounded="lg"
                 variant="outlined"
               />
-              
+
               <v-text-field
                 :model-value="voucher.amount"
                 class="mt-2 mt-md-4"
@@ -143,7 +143,7 @@ onMounted(async () => {
                 rounded="lg"
                 variant="outlined"
               />
-              
+
               <v-text-field
                 :model-value="voucher.currency"
                 class="mt-2 mt-md-4"
@@ -154,7 +154,7 @@ onMounted(async () => {
                 rounded="lg"
                 variant="outlined"
               />
-              
+
               <v-text-field
                 :model-value="voucher.price"
                 class="mt-2 mt-md-4"
@@ -165,7 +165,7 @@ onMounted(async () => {
                 rounded="lg"
                 variant="outlined"
               />
-              
+
               <v-text-field
                 :model-value="voucher.availableStock"
                 class="mt-2 mt-md-4"
@@ -176,7 +176,7 @@ onMounted(async () => {
                 rounded="lg"
                 variant="outlined"
               />
-              
+
               <v-card-actions class="mt-4">
                 <v-spacer />
                 <v-btn
