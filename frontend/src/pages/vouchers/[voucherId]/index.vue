@@ -2,7 +2,6 @@
 import {useStore} from "vuex";
 import {useRoute} from "vue-router";
 import {appInfo, getUserLocation, handleRemoveQueriesNRedirect,} from "@/others/util.js";
-import Scan from "@/models/Scan.js";
 import NoItems from "@/components/NoItems.vue";
 import ProductCard from "@/components/ProductCard.vue";
 
