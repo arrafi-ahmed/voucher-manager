@@ -74,6 +74,12 @@ fi
 echo "5.0 Configuring PostgreSQL database and user..."
 # Drop existing database and user for clean reset
 echo "Dropping existing database and user..."
+
+# Terminate all connections to the database first
+echo "Terminating all database connections..."
+sudo -u postgres psql -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$DB_NAME' AND pid <> pg_backend_pid();"
+
+# Now drop the database and user
 sudo -u postgres psql -c "DROP DATABASE IF EXISTS $DB_NAME;"
 sudo -u postgres psql -c "DROP USER IF EXISTS $DB_USER;"
 
