@@ -36,6 +36,14 @@ exports.webhook = async (req) => {
     // Check if webhook signing is configured.
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+    console.log('Webhook received:', {
+        hasWebhookSecret: !!webhookSecret,
+        isDev: isDev,
+        contentType: req.headers['content-type'],
+        bodyLength: req.body ? req.body.length : 0,
+        hasSignature: !!req.headers["stripe-signature"]
+    });
+
     if (!isDev && !webhookSecret) {
         throw new CustomError({
             message: "Missing STRIPE_WEBHOOK_SECRET in production",
@@ -52,8 +60,12 @@ exports.webhook = async (req) => {
                 signature,
                 webhookSecret,
             );
+            console.log('Webhook signature verified successfully');
         } catch (err) {
-            console.error(err);
+            console.error('Webhook signature verification failed:', err.message);
+            console.error('Request headers:', req.headers);
+            console.error('Body type:', typeof req.body);
+            console.error('Body length:', req.body ? req.body.length : 'undefined');
             throw new CustomError({message: err.message, statusCode: 400, err});
         }
         // Extract the object from the event.

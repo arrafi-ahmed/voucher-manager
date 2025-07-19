@@ -15,20 +15,20 @@ const { appInfo } = require("./src/helpers/util");
 
 const port = process.env.PORT || 3000;
 
-// Uncomment if Stripe webhook is needed
+// Stripe webhook route MUST be first and isolated from any middleware
 app.post(
   "/stripe/webhook",
   express.raw({ type: "application/json" }),
   require("./src/controller/stripe").webhook,
 );
 
-// Middleware
+// All other middleware (after webhook route)
 app.use(customHelmet);
 app.use(customCors);
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
-// Routes
+// All other routes (after middleware)
 app.use("/user", require("./src/controller/user"));
 app.use("/voucher", require("./src/controller/voucher"));
 app.use("/stat", require("./src/controller/stat"));
