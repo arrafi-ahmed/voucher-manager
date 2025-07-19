@@ -220,12 +220,12 @@ rm -rf "$FRONTEND_SITE_DIR/frontend"
 
 echo "✅ Deployment complete! Visit: https://$FRONTEND_DOMAIN"
 
-echo "🔍 Testing backend health at http://127.0.0.1:$PORT"
-
 MAX_RETRIES=5
 RETRY_INTERVAL=2
 HEALTHCHECK_URL="http://127.0.0.1:$PORT/info"
 SUCCESS=false
+
+echo "🔍 Testing backend health at $HEALTHCHECK_URL"
 
 for ((i=1; i<=MAX_RETRIES; i++)); do
   if curl --fail --silent "$HEALTHCHECK_URL" > /dev/null; then
